@@ -1,0 +1,45 @@
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:estudiantes_soap" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:estudiantes_soap">
+    <types>
+        <xsd:schema targetNamespace="urn:estudiantes_soap">
+            <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+            <xsd:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+        </xsd:schema>
+    </types>
+
+    <message name="consultarEstudiante">
+        <part name="id" type="xsd:string"/>
+    </message>
+
+    <message name="consultarEstudianteResponse">
+        <part name="return" type="xsd:string"/>
+    </message>
+    
+    <portType name="SistemaConsultaEstudiantesPortType">
+        <operation name="consultarEstudiante">
+            <documentation>Busca y devuelve los datos de un estudiante por su ID.</documentation>
+            <input message="tns:consultarEstudiante"/>
+            <output message="tns:consultarEstudianteResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="SistemaConsultaEstudiantesBinding" type="tns:SistemaConsultaEstudiantesPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="consultarEstudiante">
+            <soap:operation soapAction="urn:estudiantes_soap#consultarEstudiante" style="rpc"/>
+            
+            <input>
+                <soap:body use="encoded" namespace="urn:estudiantes_soap" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+
+            <output>
+                <soap:body use="encoded" namespace="urn:estudiantes_soap" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="SistemaConsultaEstudiantes">
+        <port name="SistemaConsultaEstudiantesPort" binding="tns:SistemaConsultaEstudiantesBinding">
+            <soap:address location="http://localhost/Taller_WEB_SERVICES/servidor.php"/>
+        </port>
+    </service>
+</definitions>

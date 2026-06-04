@@ -1,28 +1,38 @@
 <?php
-$resultado = null;
-$error = null;
-$id_buscado = '';
+// Incluir la librería NuSOAP
+require_once('lib/nusoap.php');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
-    $id_buscado = $_POST['id'];
+$resultado = null;
+$id_buscado = "";
+
+// Verificar si se ha enviado el formulario web
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['id_estudiante'])) {
+    $id_buscado = $_POST['id_estudiante'];
     
-    try {
-        $options = array(
-            'uri' => 'http://localhost/Taller_WEB_SERVICES/',
-            'location' => 'http://localhost/Taller_WEB_SERVICES/servidor.php',
-            'trace' => true
-        );
-        
-        $client = new SoapClient(null, $options);
-        $respuesta = $client->__soapCall('obtenerEstudiantePorId', array($id_buscado));
-        
-        if ($respuesta->id == 0) {
-            $error = "No se encontró estudiante con ID: $id_buscado";
+    // Instanciar el cliente SOAP apuntando directamente a la URL de tu servidor local
+    $url_servidor = "http://localhost/Taller_WEB_SERVICES/servidor.php?wsdl";
+    $client = new nusoap_client($url_servidor, true);
+
+    // Verificar si ocurrieron errores al conectarse al WSDL
+    $error = $client->getError();
+    if ($error) {
+        $resultado = array("error" => "Error de configuración: " . $error);
+    } else {
+        // Consumir el método remoto enviando el ID encapsulado
+        $response = $client->call('consultarEstudiante', array('id' => $id_buscado));
+
+        // Verificar fallos o respuestas vacías en la llamada
+        if ($client->fault) {
+            $resultado = array("error" => "Fallo en la comunicación SOAP.");
         } else {
-            $resultado = $respuesta;
+            $error = $client->getError();
+            if ($error) {
+                $resultado = array("error" => "Error de respuesta: " . $error);
+            } else {
+                // Decodificar el JSON de respuesta enviado por el servidor
+                $resultado = json_decode($response, true);
+            }
         }
-    } catch (Exception $e) {
-        $error = "Error de conexión: " . $e->getMessage();
     }
 }
 ?>
@@ -31,38 +41,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cliente SOAP - Consulta</title>
+    <title>Consulta de Estudiantes - Cliente SOAP (Modo Oscuro)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background: #3498db; color: white; border: none; cursor: pointer; }
-        .exito { background: #d4edda; padding: 15px; border-radius: 5px; margin-top: 20px; }
-        .error { background: #f8d7da; padding: 15px; border-radius: 5px; margin-top: 20px; color: #721c24; }
+        /* Ajuste personalizado para inputs en modo oscuro */
+        .form-control-dark {
+            background-color: #2b3035;
+            border-color: #495057;
+            color: #fff;
+        }
+        .form-control-dark:focus {
+            background-color: #32383e;
+            border-color: #0d6efd;
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h2>🔍 Consultar Estudiante</h2>
-        <form method="POST">
-            <label>ID del estudiante (1-5):</label>
-            <input type="number" name="id" min="1" max="5" value="<?php echo $id_buscado; ?>" required>
-            <button type="submit">Buscar</button>
-        </form>
-        
-        <?php if ($resultado): ?>
-            <div class="exito">
-                <h3>✅ Estudiante encontrado</h3>
-                <p><strong>ID:</strong> <?php echo $resultado->id; ?></p>
-                <p><strong>Nombre:</strong> <?php echo $resultado->nombre; ?></p>
-                <p><strong>Carrera:</strong> <?php echo $resultado->carrera; ?></p>
-                <p><strong>Promedio:</strong> <?php echo $resultado->promedio; ?></p>
+<body class="bg-dark text-light" style="background-color: #121212 !important;">
+    <div class="container mt-5" style="max-width: 600px;">
+        <div class="card bg-secondary text-white shadow-lg border-0" style="background-color: #1e1e1e !important;">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h3 class="mb-0">🔍 Consulta de Estudiantes</h3>
             </div>
-        <?php elseif ($error): ?>
-            <div class="error">
-                <strong>❌ Error:</strong> <?php echo $error; ?>
+            <div class="card-body p-4">
+                <form method="POST" action="cliente.php">
+                    <div class="mb-3">
+                        <label for="id_estudiante" class="form-label text-light-50">Ingrese el ID del Estudiante (Ej: 101, 102):</label>
+                        <input type="text" class="form-control form-control-dark" id="id_estudiante" name="id_estudiante" value="<?php echo htmlspecialchars($id_buscado); ?>" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Consultar Servidor SOAP</button>
+                </form>
+
+                <hr class="my-4 border-secondary">
+
+                <?php if ($resultado !== null): ?>
+                    <?php if (isset($resultado['error'])): ?>
+                        <div class="alert alert-danger text-center border-0 bg-danger text-white" role="alert">
+                            ⚠️ <?php echo $resultado['error']; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="p-3 rounded border border-secondary" style="background-color: #252525;">
+                            <h5 class="text-info border-bottom border-secondary pb-2 mb-3">🎯 Estudiante Encontrado</h5>
+                            <p class="mb-2"><strong>Nombre:</strong> <span class="text-white-50"><?php echo $resultado['nombre']; ?></span></p>
+                            <p class="mb-2"><strong>Carrera:</strong> <span class="text-white-50"><?php echo $resultado['carrera']; ?></span></p>
+                            <p class="mb-0"><strong>Promedio General:</strong> <span class="badge bg-info text-dark fs-6 fw-bold"><?php echo $resultado['promedio']; ?></span></p>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
-        <?php endif; ?>
+            <div class="card-footer text-center border-secondary py-3">
+                <a href="uddi.html" class="btn btn-sm btn-outline-light text-decoration-none px-3">Ir al Catálogo de Servicios (UDDI)</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
