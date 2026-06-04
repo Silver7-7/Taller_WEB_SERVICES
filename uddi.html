@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>UDDI - Servicio de Consulta de Estudiantes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        .content { padding: 30px; }
+        .service-card {
+            background: #f8f9fa;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .wsdl-link {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .wsdl-link:hover { background: #2980b9; }
+        .endpoint {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .method-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .method-table th, .method-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .method-table th { background: #2c3e50; color: white; }
+        .datos-prueba {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #f1f1f1;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 UDDI - Directorio de Servicios Web</h1>
+            <p>Registro público de servicios SOAP - Universidad</p>
+        </div>
+        
+        <div class="content">
+            <h2>🔍 Servicio: Consulta de Estudiantes por ID</h2>
+            <p><strong>Proveedor:</strong> Integrante 1 (Backend)</p>
+            <p><strong>Descripción:</strong> Servicio web SOAP que permite consultar información académica de estudiantes utilizando su identificador único (ID).</p>
+            
+            <div class="service-card">
+                <h3>📄 WSDL (Web Services Description Language)</h3>
+                <p>Archivo de descripción del servicio para que los clientes puedan consumirlo:</p>
+                <a href="servidor.php?wsdl" class="wsdl-link">🔗 Ver WSDL del Servicio</a>
+                <p><small>URL del WSDL: <code>http://localhost/Taller_WEB_SERVICES/servidor.php?wsdl</code></small></p>
+            </div>
+            
+            <div class="service-card">
+                <h3>🌐 Endpoint del Servicio</h3>
+                <div class="endpoint">
+                    http://localhost/Taller_WEB_SERVICES/servidor.php
+                </div>
+                <p><small>Usa esta URL en tu cliente SOAP para consumir el servicio.</small></p>
+            </div>
+            
+            <h3>📌 Método Disponible</h3>
+            <table class="method-table">
+                <thead>
+                    <tr><th>Método</th><th>Parámetro (entrada)</th><th>Tipo de retorno</th><th>Descripción</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>obtenerEstudiantePorId</code></code></td>
+                        <td><code>id</code> (string o int)</td>
+                        <td>Estructura <strong>Estudiante</strong></td>
+                        <td>Devuelve los datos completos del estudiante si existe</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>📊 Estructura del Estudiante (respuesta)</h3>
+            <div class="endpoint" style="background:#e8f4fd; color:#2c3e50;">
+                {<br>
+                &nbsp;&nbsp;"id": 1,<br>
+                &nbsp;&nbsp;"nombre": "Ana María Pérez",<br>
+                &nbsp;&nbsp;"carrera": "Ingeniería Informática",<br>
+                &nbsp;&nbsp;"promedio": 8.5<br>
+                }
+            </div>
+            
+            <div class="datos-prueba">
+                <h3>🧪 Datos de prueba disponibles</h3>
+                <p><strong>IDs disponibles:</strong> 1, 2, 3, 4, 5</p>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li><strong>ID 1:</strong> Ana María Pérez - Ingeniería Informática - 8.5</li>
+                    <li><strong>ID 2:</strong> Luis Fernando Gómez - Ingeniería Civil - 7.9</li>
+                    <li><strong>ID 3:</strong> Carolina Mendoza Ríos - Administración - 9.2</li>
+                    <li><strong>ID 4:</strong> José David Torres - Derecho - 6.8</li>
+                    <li><strong>ID 5:</strong> Valentina Suárez Ortiz - Medicina - 9.5</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <h3>💻 Ejemplo de consumo (cliente)</h3>
+                <p>Para el Integrante 2 - Código para <code>cliente.php</code>:</p>
+                <pre style="background:#2c3e50; color:#ecf0f1; padding:15px; border-radius:8px; overflow-x:auto;">
+&lt;?php
+$options = array(
+    'uri' => 'http://localhost/Taller_WEB_SERVICES/',
+    'location' => 'http://localhost/Taller_WEB_SERVICES/servidor.php'
+);
+$client = new SoapClient(null, $options);
+$resultado = $client->__soapCall('obtenerEstudiantePorId', array('1'));
+print_r($resultado);
+?&gt;</pre>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📅 Proyecto SOAP - Servicio de Consulta de Estudiantes</p>
+            <p>🔗 UDDI Simulado para fines académicos | Integrante 1 (Backend)</p>
+        </div>
+    </div>
+</body>
+</html>
